@@ -1,113 +1,163 @@
 'use client'
-import React from 'react'
-import { motion } from 'framer-motion'
+import React, { useState } from 'react'
 
 export default function Cardiology() {
-  const green = '#198916'
+  const [active, setActive] = useState<string>('non-invasive')
 
-  const services = [
-    'ECG, ETT, Holter Monitoring',
-    'Echocardiography',
-    'Coronary Angiography',
-    'Cardiac Interventions',
+  const categories = [
+    { id: 'non-invasive', label: '🫀 Non-Invasive Cardiology' },
+    { id: 'invasive', label: '💉 Invasive / Interventional Procedures' },
+    { id: 'vascular', label: '🩺 Vascular & Doppler Studies' },
+    { id: 'specialized', label: '👶 Specialized Cardiac Services' },
   ]
 
-  const container = {
-    hidden: { opacity: 0, y: 40 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, staggerChildren: 0.15 }
-    }
+  const services: Record<string, string[]> = {
+    'non-invasive': [
+      'ECG 12 Leads',
+      'ECG 12 Leads Portable',
+      'Exercise Tolerance Test (ETT)',
+      '24 Hours Holter Monitoring',
+      '48 Hours Holter Monitoring',
+      'Transthoracic Echocardiography',
+      'Echo Follow Up',
+      'Echo (On Call)',
+    ],
+    invasive: [
+      'Transesophageal Echo (TEE)',
+      'Dobutamine Stress Echo (DSE)',
+      'Pericardiocentesis Under Echo Guidance',
+      'Bubble Echo',
+    ],
+    vascular: [
+      'Carotid Ultrasound / Doppler',
+      'Extremities Arterial Doppler – Upper Limbs',
+      'Extremities Arterial Doppler – Lower Limbs',
+      'Extremities Venous Doppler – Upper Limbs',
+      'Extremities Venous Doppler – Lower Limbs',
+    ],
+    specialized: [
+      'Fetal Echocardiography',
+      'Pediatric Echo',
+    ],
   }
 
-  const item = {
-    hidden: { opacity: 0, x: -20 },
-    show: { opacity: 1, x: 0 }
-  }
+  const green = '#198916'
 
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      style={{
-        padding: '2px',
-        borderRadius: '18px',
-        background: `linear-gradient(130deg, ${green}, #7ed957, ${green})`,
-        boxShadow: '0 10px 35px rgba(0,0,0,0.15)',
-      }}
-    >
+    <div style={{ padding: '60px 20px', background: '#f5f7fa', minHeight: '100vh' }}>
       <div
         style={{
-          background: '#fff',
-          padding: '45px',
-          borderRadius: '16px',
+          maxWidth: '1200px',
+          margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: '300px 1fr',
+          gap: '40px',
         }}
+        className="responsive-grid"
       >
-        {/* HEADING */}
-        <div style={{ marginBottom: 25 }}>
-          <h2 style={{ fontSize: '34px', marginBottom: 10, fontWeight: 700 }}>
-            Cardiology
-          </h2>
+        {/* SIDEBAR */}
+        <div
+          style={{
+            background: '#d9e4ec',
+            padding: '25px',
+            borderRadius: '12px',
+            height: 'fit-content',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.08)',
+          }}
+        >
+          <h3 style={{ marginBottom: '20px', fontSize: '22px', fontWeight: 600 }}>
+            Cardiology Services
+          </h3>
 
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: 120 }}
-            transition={{ duration: 0.8 }}
-            style={{
-              height: 4,
-              borderRadius: 4,
-              background: green
-            }}
-          />
-        </div>
-
-        {/* LIST */}
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {services.map((text, i) => (
-            <motion.li
-              key={i}
-              variants={item}
-              whileHover={{ scale: 1.03 }}
+          {categories.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => setActive(cat.id)}
               style={{
-                marginBottom: 18,
-                padding: '16px 18px 16px 55px',
-                borderRadius: 12,
-                position: 'relative',
-                fontSize: 17,
-                background: '#f8fafc'
+                width: '100%',
+                padding: '14px',
+                marginBottom: '12px',
+                border: 'none',
+                borderRadius: '8px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                fontWeight: 500,
+                transition: '0.25s',
+                background: active === cat.id ? green : '#fff',
+                color: active === cat.id ? '#fff' : '#000',
+                boxShadow:
+                  active === cat.id
+                    ? '0 3px 10px rgba(0,0,0,0.15)'
+                    : '0 2px 6px rgba(0,0,0,0.05)',
               }}
             >
-              <motion.span
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ repeat: Infinity, duration: 2 }}
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* CONTENT */}
+        <div
+          style={{
+            background: '#fff',
+            padding: '35px',
+            borderRadius: '14px',
+            boxShadow: '0 4px 18px rgba(0,0,0,0.08)',
+          }}
+        >
+          <h2 style={{ fontSize: '32px', marginBottom: '20px', color: green }}>
+            {categories.find(c => c.id === active)?.label}
+          </h2>
+
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {services[active].map((item, i) => (
+              <li
+                key={i}
                 style={{
-                  position: 'absolute',
-                  left: 18,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  width: 24,
-                  height: 24,
-                  borderRadius: '50%',
-                  background: green,
-                  color: '#fff',
-                  fontSize: 14,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 700
+                  marginBottom: '14px',
+                  paddingLeft: '30px',
+                  position: 'relative',
+                  fontSize: '17px',
                 }}
               >
-                ✓
-              </motion.span>
-
-              {text}
-            </motion.li>
-          ))}
-        </ul>
+                <span
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    color: green,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  ✓
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-    </motion.div>
+
+      {/* Optional Contact Section */}
+      <div
+        style={{
+          maxWidth: '1200px',
+          margin: '30px auto 0',
+          fontSize: '18px',
+          fontWeight: 500,
+        }}
+      >
+        <p>🫀 Advanced Cardiac Diagnostics & Interventions</p>
+        <p>📍 Available 24/7 | Experienced Cardiologists | Modern Equipment</p>
+      </div>
+
+      <style jsx>{`
+        @media (max-width: 900px) {
+          .responsive-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+    </div>
   )
 }
 
