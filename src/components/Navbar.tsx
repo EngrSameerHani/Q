@@ -335,6 +335,7 @@ const Navbar = ({ token, user }: { token: string; user: User | null }) => {
                         { name: 'Transplant Services', href: '/services/Transplant-Services' },
                         { name: 'Rehabilitation & Support Services', href: '/services/Rehabilitation-&-Support-Services' },
                         { name: 'Bone Marrow Transplant', href: '/services/bone-marrow-transplant' },
+                        { name: 'Test', href: '/services/Test' },
                         
                       ].map((service) => (
                         <li key={service.name}>
