@@ -48,76 +48,56 @@ const page = () => {
                           will receive or return calls.
                         </p>
                         <form
-                          className="contactForm"
-                          method="post"
-                          action="assets/php/contact.php"
-                        >
-                          <div className="row">
-                            <div className="col-12 col-md-12 col-lg-6">
-                              <input
-                                className="form-control"
-                                type="text"
-                                name="contact-name"
-                                placeholder="Name"
-                                required
-                              />
-                            </div>
-                            <div className="col-12 col-md-6 col-lg-6">
-                              <input
-                                className="form-control"
-                                type="text"
-                                name="contact-email"
-                                placeholder="Email"
-                                required
-                              />
-                            </div>
-                            <div className="col-12 col-md-6">
-                              <div className="select-holder">
-                                <select className="form-control">
-                                  <option value="default">subject</option>
-                                  <option value="AL">
-                                    how to eat healthy ?
-                                  </option>
-                                  <option value="AK">
-                                    wearing a mask importance{" "}
-                                  </option>
-                                </select>
-                                <div className="badge">subject</div>
-                              </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-lg-6">
-                              <input
-                                className="form-control"
-                                type="text"
-                                name="contact-phone"
-                                placeholder="Phone"
-                                required
-                              />
-                            </div>
-                            <div className="col-12">
-                              <textarea
-                                className="form-control"
-                                name="contact-message"
-                                cols={30}
-                                rows={2}
-                                placeholder="message"
-                                required
-                              ></textarea>
-                            </div>
-                            <div className="col-12">
-                              <button className="btn btn--secondary btn-line btn-line-before btn--block">
-                                <span className="line">
-                                  {" "}
-                                  <span> </span>
-                                </span>
-                                <span>submit request</span>
-                              </button>
-                            </div>
-                            <div className="col-12">
-                              <div className="contact-result"></div>
-                            </div>
-                          </div>
-                        </form>
+  className="contactForm"
+  method="post"
+  action="assets/php/contact.php"
+>
+  <div className="row">
+    <div className="col-12 col-md-6">
+      <input
+        className="form-control"
+        type="text"
+        name="contact-name"
+        placeholder="Name"
+        required
+      />
+    </div>
+
+    <div className="col-12 col-md-6">
+      <input
+        className="form-control"
+        type="text"
+        name="contact-phone"
+        placeholder="Phone"
+        required
+      />
+    </div>
+
+    <div className="col-12">
+      <textarea
+        className="form-control"
+        name="contact-feedback"
+        cols={30}
+        rows={3}
+        placeholder="Feedback"
+        required
+      ></textarea>
+    </div>
+
+    <div className="col-12">
+      <button className="btn btn--secondary btn-line btn-line-before btn--block">
+        <span className="line">
+          <span></span>
+        </span>
+        <span>Submit Feedback</span>
+      </button>
+    </div>
+
+    <div className="col-12">
+      <div className="contact-result"></div>
+    </div>
+  </div>
+</form>
                       </div>
                     </div>
                   </div>
@@ -303,7 +283,7 @@ const page = () => {
                         <div className="card-body">
                         +92 (051) 8449100,
                         <br />
-                        92 (051) 2315249,
+                        +92 (051) 2315249,
                         <br />
                         +92 (051) 2315184,
                         <br />
