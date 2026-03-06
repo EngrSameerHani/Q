@@ -33,18 +33,13 @@ const AdminAvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
   onUpdateAvailability,
   consultantId,
 }) => {
-  const [availableSchedule, setAvailableSchedule] = useState<
-    AvailabilityEvent[]
-  >([])
+  const [availableSchedule, setAvailableSchedule] = useState<AvailabilityEvent[]>([])
   const calendarRef = useRef<HTMLDivElement>(null)
   const calendarInstanceRef = useRef<Calendar | null>(null)
   const [selectedEvent, setSelectedEvent] = useState<EventApi | null>(null)
-  const [contextMenuPosition, setContextMenuPosition] = useState({
-    left: 0,
-    top: 0,
-  })
+  const [contextMenuPosition, setContextMenuPosition] = useState({ left: 0, top: 0 })
   const [showContextMenu, setShowContextMenu] = useState(false)
-  const [examineDuration, setExamineDuration] = useState('')
+  const [examineDuration, setExamineDuration] = useState('30')
   const [loading, setLoading] = useState(false)
 
   const getSchedule = async () => {
@@ -59,167 +54,173 @@ const AdminAvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
     getSchedule()
   }, [consultantId])
 
+  // convert minutes to HH:mm:ss format
+  const formatDuration = (minutes: number) => {
+    const hrs = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:00`
+  }
+
   useEffect(() => {
-    if (calendarRef.current) {
-      const calendarEl = calendarRef.current
-      const calendar = new Calendar(calendarEl, {
-        plugins: [timeGridPlugin, interactionPlugin],
-        events: availableSchedule,
-        dayHeaderFormat: { weekday: 'long' },
-        initialView: 'timeGridWeek',
-        editable: true,
-        droppable: true,
-        eventResizableFromStart: true,
-        allDaySlot: false,
-        selectable: true,
-        headerToolbar: false,
-        timeZone: 'Asia/Karachi',
-        initialDate: '2023-01-01',
-        slotLabelFormat: {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        },
-        select: (info: DateSelectArg) => {
-          const newEvent = calendar.addEvent({
-            title: 'Availability',
-            start: info.startStr,
-            end: info.endStr,
-            allDay: info.allDay,
-            backgroundColor: '#01306f',
-            borderColor: '#01306f',
-          })
+    if (!calendarRef.current) return
 
-          calendar.unselect()
-          if (newEvent) {
-            mergeOverlappingEvents(newEvent)
-          }
-        },
-        eventDrop: (info: EventDropArg) => {
-          const event = info.event
-          const eventStart = event.start
-          const eventEnd =
-            event.end ||
-            new Date((eventStart as Date).getTime() + 60 * 60 * 1000)
+    const calendarEl = calendarRef.current
 
-          // Ensure the event does not exceed a single day
-          if ((eventStart as Date).getDate() !== (eventEnd as Date).getDate()) {
-            event.setEnd(
-              new Date(
-                (eventStart as Date).getFullYear(),
-                (eventStart as Date).getMonth(),
-                (eventStart as Date).getDate(),
-                23,
-                59,
-                59
-              )
-            )
-          }
+    const calendar = new Calendar(calendarEl, {
+      plugins: [timeGridPlugin, interactionPlugin],
+      events: availableSchedule,
+      dayHeaderFormat: { weekday: 'long' },
+      initialView: 'timeGridWeek',
+      editable: true,
+      selectable: true,
+      droppable: true,
+      eventResizableFromStart: true,
+      allDaySlot: false,
+      headerToolbar: false,
+      timeZone: 'Asia/Karachi',
+      initialDate: '2023-01-01',
 
-          mergeOverlappingEvents(event)
-        },
-        eventDidMount: (info) => {
-          info.el.addEventListener('contextmenu', (e) => {
-            e.preventDefault()
-            setSelectedEvent(info.event)
+      // ⭐ Dynamic Slot Duration
+      slotDuration: formatDuration(Number(examineDuration)),
 
-            // Position context menu
-            setContextMenuPosition({
-              left: e.pageX - 290,
-              top: e.pageY - 100,
-            })
-            setShowContextMenu(true)
-          })
-        },
-        eventResize: (info: EventResizeDoneArg) => {
-          mergeOverlappingEvents(info.event)
-        },
-      })
+      slotLabelFormat: {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      },
 
-      const mergeOverlappingEvents = (newEvent: EventApi) => {
-        const events = calendar.getEvents()
-        let mergedStart = newEvent.start as Date
-        let mergedEnd = newEvent.end as Date
-
-        events.forEach((event) => {
-          if (event.id !== newEvent.id && event.title === 'Availability') {
-            if (
-              (newEvent.start as Date) < (event.end as Date) &&
-              (newEvent.end as Date) > (event.start as Date)
-            ) {
-              // Extend merged start and end times
-              mergedStart = new Date(
-                Math.min(mergedStart.getTime(), (event.start as Date).getTime())
-              )
-              mergedEnd = new Date(
-                Math.max(mergedEnd.getTime(), (event.end as Date).getTime())
-              )
-
-              // Remove the existing overlapping event
-              event.remove()
-            }
-          }
-        })
-
-        // Remove the newEvent itself before adding the merged one
-        newEvent.remove()
-
-        // Add merged event
-        calendar.addEvent({
-          id: Math.random().toString(36).substr(2, 9),
+      select: (info: DateSelectArg) => {
+        const newEvent = calendar.addEvent({
           title: 'Availability',
-          start: mergedStart,
-          end: mergedEnd,
-          allDay: false,
+          start: info.startStr,
+          end: info.endStr,
           backgroundColor: '#01306f',
           borderColor: '#01306f',
         })
-      }
 
-      calendar.render()
-      calendarInstanceRef.current = calendar
+        calendar.unselect()
+        if (newEvent) mergeOverlappingEvents(newEvent)
+      },
 
-      return () => {
-        calendar.destroy()
-      }
+      eventDrop: (info: EventDropArg) => {
+        const event = info.event
+        const eventStart = event.start as Date
+        const eventEnd =
+          event.end || new Date(eventStart.getTime() + 60 * 60 * 1000)
+
+        if (eventStart.getDate() !== eventEnd.getDate()) {
+          event.setEnd(
+            new Date(
+              eventStart.getFullYear(),
+              eventStart.getMonth(),
+              eventStart.getDate(),
+              23,
+              59,
+              59
+            )
+          )
+        }
+
+        mergeOverlappingEvents(event)
+      },
+
+      eventResize: (info: EventResizeDoneArg) => {
+        mergeOverlappingEvents(info.event)
+      },
+
+      eventDidMount: (info) => {
+        info.el.addEventListener('contextmenu', (e) => {
+          e.preventDefault()
+
+          setSelectedEvent(info.event)
+          setContextMenuPosition({
+            left: e.pageX - 290,
+            top: e.pageY - 100,
+          })
+
+          setShowContextMenu(true)
+        })
+      },
+    })
+
+    const mergeOverlappingEvents = (newEvent: EventApi) => {
+      const events = calendar.getEvents()
+
+      let mergedStart = newEvent.start as Date
+      let mergedEnd = newEvent.end as Date
+
+      events.forEach((event) => {
+        if (event.id !== newEvent.id && event.title === 'Availability') {
+          if (
+            (newEvent.start as Date) < (event.end as Date) &&
+            (newEvent.end as Date) > (event.start as Date)
+          ) {
+            mergedStart = new Date(
+              Math.min(mergedStart.getTime(), (event.start as Date).getTime())
+            )
+
+            mergedEnd = new Date(
+              Math.max(mergedEnd.getTime(), (event.end as Date).getTime())
+            )
+
+            event.remove()
+          }
+        }
+      })
+
+      newEvent.remove()
+
+      calendar.addEvent({
+        id: Math.random().toString(36).substr(2, 9),
+        title: 'Availability',
+        start: mergedStart,
+        end: mergedEnd,
+        backgroundColor: '#01306f',
+        borderColor: '#01306f',
+      })
     }
-  }, [availableSchedule])
 
-  // Hide context menu when clicking anywhere else
+    calendar.render()
+    calendarInstanceRef.current = calendar
+
+    return () => {
+      calendar.destroy()
+    }
+  }, [availableSchedule, examineDuration])
+
   useEffect(() => {
-    const handleClick = () => {
-      setShowContextMenu(false)
-    }
-
+    const handleClick = () => setShowContextMenu(false)
     document.addEventListener('click', handleClick)
+
     return () => {
       document.removeEventListener('click', handleClick)
     }
   }, [])
 
   const handleDeleteEvent = () => {
-    if (selectedEvent) {
-      selectedEvent.remove()
-      setSelectedEvent(null)
-      setShowContextMenu(false)
-    }
+    if (!selectedEvent) return
+
+    selectedEvent.remove()
+    setSelectedEvent(null)
+    setShowContextMenu(false)
   }
 
   const handleSaveEvents = () => {
-    if (calendarInstanceRef.current) {
-      const events = calendarInstanceRef.current.getEvents().map((event) => {
-        const start = event.start || new Date()
-        const end = event.end || new Date(start.getTime() + 30 * 60 * 1000)
-        return {
-          title: event.title,
-          start: start,
-          end: end,
-        }
-      })
+    if (!calendarInstanceRef.current) return
 
-      if (onUpdateAvailability) {
-        onUpdateAvailability(events as AvailabilityEvent[], examineDuration)
+    const events = calendarInstanceRef.current.getEvents().map((event) => {
+      const start = event.start || new Date()
+      const end = event.end || new Date(start.getTime() + 30 * 60 * 1000)
+
+      return {
+        title: event.title,
+        start,
+        end,
       }
+    })
+
+    if (onUpdateAvailability) {
+      onUpdateAvailability(events as AvailabilityEvent[], examineDuration)
     }
   }
 
@@ -227,40 +228,41 @@ const AdminAvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
 
   return (
     <div className="position-relative w-100 h-100">
-      <div className="mb-2 w-100 d-flex justify-content-start align-items-baseline gap-4">
+
+      <div className="mb-2 w-100 d-flex gap-4 align-items-baseline">
+
         <div className="w-25">
           <input
-            type="text"
+            type="number"
             value={examineDuration}
             onChange={(e) => setExamineDuration(e.target.value)}
             className="form-control"
-            placeholder="Examine Duration"
+            placeholder="Examine Duration (minutes)"
           />
         </div>
+
         <div className="mt-4">
           <button
-            id="saveEvents"
             className="btn btn-primary"
             onClick={handleSaveEvents}
           >
             Save Availability
           </button>
         </div>
-      </div>
-      <div ref={calendarRef} id="calendar" className="w-100 h-100"></div>
 
-      {/* Context Menu */}
+      </div>
+
+      <div ref={calendarRef} className="w-100 h-100"></div>
+
       {showContextMenu && (
         <div
-          id="context-menu"
-          className="position-absolute p-2 rounded z-3 bg-transparent"
+          className="position-absolute p-2 rounded z-3"
           style={{
-            left: `${contextMenuPosition.left}px`,
-            top: `${contextMenuPosition.top}px`,
+            left: contextMenuPosition.left,
+            top: contextMenuPosition.top,
           }}
         >
           <button
-            id="delete-event"
             className="btn btn-danger btn-sm"
             onClick={handleDeleteEvent}
           >
@@ -268,8 +270,6 @@ const AdminAvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
           </button>
         </div>
       )}
-
-      {/* Save Button */}
     </div>
   )
 }
