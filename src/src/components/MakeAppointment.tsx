@@ -225,7 +225,7 @@ const MakeAppointment = () => {
       formData.append('appointment_dateTime', formatteddateTime)
       formData.append('department_id', result.data.department_id)
       formData.append('consultant_id', result.data.consultant_id)
-     
+      formData.append('patient_category', result.data.patient_category)
       const res = await MakePublicAppointmentAction(formData)
       if (res.status === 'success') {
         setLoading(false)
@@ -238,6 +238,7 @@ const MakeAppointment = () => {
           department_id: '',
           consultant_id: '',
           message: '',
+          patient_category:'', 
         })
       } else {
         setLoading(false)
