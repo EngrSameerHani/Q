@@ -99,16 +99,18 @@ const Navbar = ({ token, user }: { token: string; user: User | null }) => {
     }
   }
 
-  const getDashboardUrl = () => {
-    if (!user || !user.roles.length) return '#'
+ const getDashboardUrl = () => {
+  if (!user || !user.roles.length) return '#'
 
-    const roleName = user.roles[0].name.toLowerCase()
-    if (roleName === 'admin') return '/admin'
-    if (roleName === 'consultant') return '/consultant-dashboard'
-    if (roleName === 'patient') return '/patient-dashboard'
-    return '#'
-  }
+  const roleName = user.roles[0].name.toLowerCase()
 
+  if (roleName === 'admin') return '/admin'
+  if (roleName === 'consultant') return '/consultant-dashboard'
+  if (roleName === 'patient') return '/patient-dashboard'
+  if (roleName === 'receptionist') return '/receptionist-dashboard'
+
+  return '#'
+}
   return (
     <header className="header header-light header-topbar" id="navbar-spy">
       <nav className="navbar navbar-expand-xl navbar-sticky" id="primary-menu">
@@ -647,7 +649,56 @@ const Navbar = ({ token, user }: { token: string; user: User | null }) => {
                 )}
               </ul>
             </li>
+{/* RECEPTIONIST */}
+{user?.roles[0].name === 'Receptionist' && (
+  <>
+    <li>
+      <Link
+        className="dropdown-item"
+        href="Receptionist"
+        onClick={closeAllMenus}
+      >
+        Receptionist Dashboard
+      </Link>
+    </li>
 
+    <li>
+      <Link
+        className="dropdown-item"
+        href="/Receptionist/appointments"
+        onClick={closeAllMenus}
+      >
+        Appointments
+      </Link>
+    </li>
+
+    <li>
+      <Link
+        className="dropdown-item"
+        href="/Receptionist/consultants"
+        onClick={closeAllMenus}
+      >
+        Consultants
+      </Link>
+    </li>
+
+    <li>
+      <Link
+        className="dropdown-item"
+        href="/Receptionist/Departments"
+        onClick={closeAllMenus}
+      >
+        Departments
+      </Link>
+    </li>
+
+    <li>
+      <a className="dropdown-item">
+        <Logout />
+      </a>
+    </li>
+  </>
+)}
 
            {/* Careers */}
 <li
