@@ -20,7 +20,7 @@ import './styles/style.css'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 import Wrapper from '@/components/Wrapper'
 import { Toaster } from 'react-hot-toast'
-import { initializeReceptionist } from "@/app/lib/initializeReceptionist"
+
 
 const heebo = Heebo({
   weight: ['400', '500', '600', '700'],
@@ -50,8 +50,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
 
-  // ✅ Call receptionist initializer
-  await initializeReceptionist()
+
 
   return (
     <html lang="en" suppressHydrationWarning>
