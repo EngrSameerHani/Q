@@ -6,7 +6,6 @@ import Link from 'next/link'
 import React from 'react'
 import { FaEdit } from 'react-icons/fa'
 
-// Type definitions for appointments
 interface Consultant {
   id: number
   name: string
@@ -31,7 +30,7 @@ interface AppointmentData {
   patient_name: string
   mobile_no: string
   appointment_datetime: string
-  patient_category: string // Added patient category
+  patient_category: string
   consultant: Consultant
   department: Department
   user: User
@@ -45,6 +44,7 @@ interface Appointment {
 
 const AdminAppointments = async () => {
   const allAppointments: Appointment = await getAppointments()
+  const appointments = allAppointments?.data || []
 
   return (
     <div className="container">
@@ -74,13 +74,13 @@ const AdminAppointments = async () => {
             </tr>
           </thead>
           <tbody>
-            {allAppointments?.data.length ? (
-              allAppointments.data.map((appointment, index) => (
+            {appointments.length ? (
+              appointments.map((appointment, index) => (
                 <tr key={appointment.id}>
                   <td>{index + 1}</td>
                   <td>{appointment.patient_name}</td>
                   <td>{appointment.mobile_no}</td>
-                  <td>{appointment.appointment_datetime}</td>
+                  <td>{new Date(appointment.appointment_datetime).toLocaleString()}</td>
                   <td>{appointment.patient_category}</td>
                   <td>{appointment.consultant.name}</td>
                   <td>{appointment.user.name}</td>
