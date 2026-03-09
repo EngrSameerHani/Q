@@ -41,4 +41,7 @@
     "prisma": "^7.4.2",
     "typescript": "^5"
   }
+  "scripts": {
+  "postinstall": "prisma generate"
+}
 }
