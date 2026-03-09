@@ -30,7 +30,7 @@ const AdminAvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ consul
   const calendarRef = useRef<HTMLDivElement>(null)
   const calendarInstanceRef = useRef<Calendar | null>(null)
 
-  // Fetch schedule from backend
+  // Fetch saved schedule from backend
   const getSchedule = async () => {
     setLoading(true)
     try {
@@ -58,14 +58,14 @@ const AdminAvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ consul
       plugins: [timeGridPlugin, interactionPlugin],
       events: availableSchedule,
       initialView: 'timeGridWeek',
-      dayHeaderFormat: { weekday: 'long' },
       editable: true,
       selectable: true,
-      droppable: true,
       allDaySlot: false,
       eventResizableFromStart: true,
       headerToolbar: false,
       timeZone: 'Asia/Karachi',
+      slotDuration: '00:05:00', // grid every 5 min
+      snapDuration: '00:01:00', // snap events every 1 min
       slotLabelFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
       initialDate: new Date(),
 
@@ -73,6 +73,7 @@ const AdminAvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ consul
       select: (info: DateSelectArg) => {
         const durationInMinutes = parseInt(examineDuration) || 30
         const endDate = new Date(info.start.getTime() + durationInMinutes * 60 * 1000)
+
         const newEvent = calendar.addEvent({
           title: 'Availability',
           start: info.start,
@@ -85,13 +86,8 @@ const AdminAvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ consul
         if (newEvent) mergeOverlappingEvents(newEvent)
       },
 
-      eventDrop: (info: EventDropArg) => {
-        mergeOverlappingEvents(info.event)
-      },
-
-      eventResize: (info: EventResizeDoneArg) => {
-        mergeOverlappingEvents(info.event)
-      },
+      eventDrop: (info: EventDropArg) => mergeOverlappingEvents(info.event),
+      eventResize: (info: EventResizeDoneArg) => mergeOverlappingEvents(info.event),
 
       eventDidMount: (info) => {
         info.el.addEventListener('contextmenu', (e) => {
@@ -103,7 +99,7 @@ const AdminAvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ consul
       },
     })
 
-    // Merge overlapping events
+    // Merge overlapping events automatically
     const mergeOverlappingEvents = (newEvent: EventApi) => {
       const events = calendar.getEvents()
       let mergedStart = newEvent.start as Date
@@ -137,14 +133,14 @@ const AdminAvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({ consul
     return () => calendar.destroy()
   }, [availableSchedule, examineDuration])
 
-  // Hide context menu when clicking elsewhere
+  // Hide context menu when clicking anywhere
   useEffect(() => {
     const handleClick = () => setShowContextMenu(false)
     document.addEventListener('click', handleClick)
     return () => document.removeEventListener('click', handleClick)
   }, [])
 
-  // Delete event from calendar
+  // Delete selected event
   const handleDeleteEvent = () => {
     if (selectedEvent) {
       selectedEvent.remove()
