@@ -1,5 +1,3 @@
-'use client'
-
 import { getAppointments } from '@/app/lib/getAppointments'
 import DeleteAppointments from '@/components/DeleteAppointments'
 import Link from 'next/link'
@@ -43,14 +41,17 @@ interface Appointment {
 }
 
 const AdminAppointments = async () => {
+
   const allAppointments: Appointment = await getAppointments()
   const appointments = allAppointments?.data || []
 
   return (
     <div className="container">
       <div className="m-5">
+
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h4>Appointments</h4>
+
           <Link
             href="/admin/appointments/create"
             className="btn btn--secondary btn-line btn-line-before"
@@ -73,6 +74,7 @@ const AdminAppointments = async () => {
               <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {appointments.length ? (
               appointments.map((appointment, index) => (
@@ -80,7 +82,11 @@ const AdminAppointments = async () => {
                   <td>{index + 1}</td>
                   <td>{appointment.patient_name}</td>
                   <td>{appointment.mobile_no}</td>
-                  <td>{new Date(appointment.appointment_datetime).toLocaleString()}</td>
+                  <td>
+                    {new Date(
+                      appointment.appointment_datetime
+                    ).toLocaleString()}
+                  </td>
                   <td>{appointment.patient_category}</td>
                   <td>{appointment.consultant.name}</td>
                   <td>{appointment.user.name}</td>
@@ -91,6 +97,7 @@ const AdminAppointments = async () => {
                     >
                       <FaEdit />
                     </Link>
+
                     <DeleteAppointments id={appointment.id} />
                   </td>
                 </tr>
@@ -104,6 +111,7 @@ const AdminAppointments = async () => {
             )}
           </tbody>
         </table>
+
       </div>
     </div>
   )
