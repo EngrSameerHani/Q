@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs"
-import { prisma } from "./prisma"
+
 
 export async function initializeReceptionist() {
   try {
